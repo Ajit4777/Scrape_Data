@@ -3,28 +3,7 @@
 import requests
 import json
 import sys
-import mysql.connector
-
-""" 
-For SQL Connection
-------------------
-Parameters
-----------
-    -host
-    -user
-    -password
-    -database name
-    -password format
-"""
-mydb = mysql.connector.connect(
-  host="localhost",
-  user="root",
-  password="Mindfire@1",
-  database="product_database",
-  auth_plugin='mysql_native_password'
-)
-
-mycursor = mydb.cursor()
+import db_connection
 
 """
 GET PRODUCT
@@ -60,6 +39,7 @@ sql = "INSERT INTO Products (name, price) VALUES (%s, %s)"
 
 # It will take the product names from command line argument.
 n = len(sys.argv)
+mycursor = db_connection.SendData()
 for i in range(1,n):
     products = get_products(sys.argv[i])
     products_json = json.dumps(products)
@@ -68,10 +48,8 @@ for i in range(1,n):
     for i in range(len(products_data)):
         val.append((products_data[i]['basic']['name'],products_data[i]['store']['price']['displayPrice']))
         # print(products_data[i]['store']['price']['displayPrice'])
-    mycursor.executemany(sql, val)
-
-mydb.commit()
-
+    mycursor.upload_data(sql, val)
+mycursor.commint_db()
     
 
 
